@@ -56,6 +56,6 @@ jobs:
       run: aws s3 sync ./dist ${{ env.AWS_S3_BUCKET_URL }} --delete --no-progress
 
     - name: Invalidate CloudFront distribution
-      run: aws cloudfront create-invalidation --distribution-id ${{ env.AWS_ClOUDFRONT_DISTRIBUTION_ID }} --paths "/*" --no-cli-pager
+      run: aws cloudfront create-invalidation --distribution-id ${{ env.AWS_CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*" --no-cli-pager
 
 
