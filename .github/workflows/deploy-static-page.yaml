@@ -1,0 +1,61 @@
+name: Deploy static page
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy Site
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v3
+      with:
+        role-to-assume: arn:aws:iam::852264810958:role/GitHub_actions
+        role-session-name: GitHub_to_AWS_via_FederatedOIDC
+        aws-region: eu-north-1
+
+    - uses: hashicorp/setup-terraform@v3
+
+    - name: Terraform fmt
+      id: fmt
+      run: terraform fmt -check
+
+    - name: Terraform Init
+      id: init
+      run: terraform init
+
+    - name: Terraform Validate
+      id: validate
+      run: terraform validate -no-color
+
+    - name: Terraform apply
+      run: terraform apply
+
+    - name: Use Node.js 20.x
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20.x'
+
+    - name: Install
+      run: npm ci
+
+    - name: Build
+      run: npm run build
+
+    - name: Sync files to S3 bucket
+      run: aws s3 sync ./dist ${{ env.AWS_S3_BUCKET_URL }} --delete --no-progress
+
+    - name: Invalidate CloudFront distribution
+      run: aws cloudfront create-invalidation --distribution-id ${{ env.AWS_ClOUDFRONT_DISTRIBUTION_ID }} --paths "/*" --no-cli-pager
+
+

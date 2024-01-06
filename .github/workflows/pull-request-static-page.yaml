@@ -1,0 +1,73 @@
+name: Pull request for static page check
+
+permissions:
+  id-token: write
+  contents: write
+  pull-requests: read
+
+on:
+  - pull_request
+  - workflow_dispatch
+
+jobs:
+  check_build:
+    name: Check build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Use Node.js 20.x
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20.x'
+
+    - name: Install
+      run: npm ci
+
+    - name: Build
+      run: npm run build
+
+  check_tf:
+    name: Check Terraform
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v3
+      with:
+        role-to-assume: arn:aws:iam::852264810958:role/GitHub_actions
+        role-session-name: GitHub_to_AWS_via_FederatedOIDC
+        aws-region: eu-north-1
+
+    - uses: hashicorp/setup-terraform@v3
+
+    - name: Terraform fmt
+      id: fmt
+      run: terraform fmt -check
+
+    - name: Terraform Init
+      id: init
+      run: terraform init
+
+    - name: Terraform Validate
+      id: validate
+      run: terraform validate -no-color
+
+  automerge:
+    needs: [check_build, check_tf]
+    name: Automerge
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+    steps:
+      - name: Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v1
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+      - name: Enable auto-merge for Dependabot PRs
+        run: gh pr merge "$PR_URL" --auto --squash
+        env:
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
