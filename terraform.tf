@@ -2,6 +2,10 @@ variable "domain_name" {
   type = string
 }
 
+variable "bucket_name" {
+  type = string
+}
+
 provider "aws" {
   region = "us-east-1"
 }
@@ -17,4 +21,5 @@ terraform {
 module "website" {
   source      = "./terraform/"
   domain_name = var.domain_name
+  bucket_name = var.bucket_name
 }

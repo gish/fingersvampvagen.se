@@ -8,14 +8,14 @@ data "aws_iam_policy_document" "website_policy" {
       aws_cloudfront_origin_access_identity.origin_access_identity.iam_arn]
       type = "AWS"
     }
-    resources = ["arn:aws:s3:::${var.domain_name}/*"]
+    resources = ["arn:aws:s3:::${var.bucket_name}/*"]
   }
-  
+
   statement {
-    actions = ["s3:ListBucket"]
-    resources = ["arn:aws:s3:::${var.domain_name}"]
+    actions   = ["s3:ListBucket"]
+    resources = ["arn:aws:s3:::${var.bucket_name}"]
     principals {
-      type = "AWS"
+      type        = "AWS"
       identifiers = [aws_cloudfront_origin_access_identity.origin_access_identity.iam_arn]
     }
   }

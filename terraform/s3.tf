@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "website_bucket" {
-  bucket = var.domain_name
+  bucket = var.bucket_name
 }
 
 resource "aws_s3_bucket_website_configuration" "website" {
