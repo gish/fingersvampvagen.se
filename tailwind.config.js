@@ -3,9 +3,8 @@ module.exports = {
   content: ["./src/**/*.{html,js}"],
   theme: {
     extend: {
-      colors: {
-      },
+      colors: {},
     },
   },
-  plugins: [],
+  plugins: [require("@tailwindcss/typography")],
 };
