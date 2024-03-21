@@ -6,7 +6,7 @@
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.10",
-    "postcss": "^8.4.37",
+    "postcss": "^8.4.38",
     "prettier": "^3.2.5",
     "prettier-plugin-tailwindcss": "^0.5.12",
     "sharp": "^0.31.1",
